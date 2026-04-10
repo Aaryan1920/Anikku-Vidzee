@@ -1,8 +1,38 @@
 {
+  "name": "VidZee",
   "id": "vidzee",
-  "name": "VidZee Player",
   "version": 1,
-  "language": "javascript",
-  "entry": "progress.js",
-  "description": "VidZee TMDB search + player + progress tracking"
+  "author": "you",
+  "icon": "https://player.vidzee.wtf/favicon.ico",
+
+  "search": {
+    "url": "https://api.themoviedb.org/3/search/multi?api_key=YOUR_TMDB_API_KEY&query={query}",
+    "map": {
+      "results": {
+        "id": "id",
+        "title": "title || name",
+        "poster": "poster_path",
+        "type": "media_type"
+      }
+    }
+  },
+
+  "details": {
+    "movie": {
+      "player": {
+        "url": "https://player.vidzee.wtf/embed/movie/{id}",
+        "injectScript": "progress.js"
+      }
+    },
+
+    "tv": {
+      "seasonsUrl": "https://api.themoviedb.org/3/tv/{id}?api_key=YOUR_TMDB_API_KEY",
+      "episodesUrl": "https://api.themoviedb.org/3/tv/{id}/season/{season}?api_key=YOUR_TMDB_API_KEY",
+
+      "player": {
+        "url": "https://player.vidzee.wtf/embed/tv/{id}/{season}/{episode}",
+        "injectScript": "progress.js"
+      }
+    }
+  }
 }
