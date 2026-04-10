@@ -1,84 +1,71 @@
 (function () {
 
-    // Load saved progress
-    function getSavedProgress(key) {
+    function load(key) {
         try {
-            return JSON.parse(localStorage.getItem("vidzee_progress_" + key)) || null;
+            return JSON.parse(localStorage.getItem("vidzee_" + key)) || null;
         } catch {
             return null;
         }
     }
 
-    // Save progress
-    function saveProgress(key, data) {
-        localStorage.setItem("vidzee_progress_" + key, JSON.stringify(data));
+    function save(key, data) {
+        localStorage.setItem("vidzee_" + key, JSON.stringify(data));
     }
 
-    // Listen for messages from Vidzee player
+    // Receive VidZee messages
     window.addEventListener("message", (event) => {
         if (event.origin !== "https://player.vidzee.wtf") return;
 
         const msg = event.data;
+        if (!msg) return;
 
-        // MEDIA_DATA → full progress info
-        if (msg?.type === "MEDIA_DATA") {
+        // MEDIA_DATA (full)
+        if (msg.type === "MEDIA_DATA") {
             const d = msg.data;
             const key = `${d.type}_${d.id}`;
-
-            saveProgress(key, {
-                current: d.progress.watched,
+            save(key, {
+                time: d.progress.watched,
                 duration: d.progress.duration,
                 season: d.last_season_watched,
-                episode: d.last_episode_watched,
-                updated: Date.now()
+                episode: d.last_episode_watched
             });
         }
 
-        // PLAYER_EVENT → updates while playing
-        if (msg?.type === "PLAYER_EVENT") {
+        // PLAYER_EVENT (live)
+        if (msg.type === "PLAYER_EVENT") {
             const d = msg.data;
             const key = `${d.mediaType}_${d.tmdbId}`;
-
-            saveProgress(key, {
-                current: d.currentTime,
+            save(key, {
+                time: d.currentTime,
                 duration: d.duration,
                 season: d.season,
-                episode: d.episode,
-                updated: Date.now()
+                episode: d.episode
             });
         }
     });
 
-    // Restore progress if available
+    // Auto-restore progress
     window.addEventListener("DOMContentLoaded", () => {
-        // TMDB ID is inside the iframe URL
         const url = window.location.href;
 
-        const matchMovie = url.match(/movie\/(\d+)/);
-        const matchTV = url.match(/tv\/(\d+)\/(\d+)\/(\d+)/);
+        const movie = url.match(/movie\/(\d+)/);
+        const tv = url.match(/tv\/(\d+)\/(\d+)\/(\d+)/);
 
-        if (matchMovie) {
-            const id = matchMovie[1];
-            const key = `movie_${id}`;
-            const saved = getSavedProgress(key);
-
-            if (saved && window.player) {
-                window.player.currentTime = saved.current;
-            }
+        if (movie) {
+            const id = movie[1];
+            const data = load(`movie_${id}`);
+            if (data && window.player) window.player.currentTime = data.time;
         }
 
-        if (matchTV) {
-            const id = matchTV[1];
-            const season = matchTV[2];
-            const episode = matchTV[3];
-            const key = `tv_${id}`;
-            const saved = getSavedProgress(key);
-
-            if (saved && window.player) {
-                if (saved.season == season && saved.episode == episode) {
-                    window.player.currentTime = saved.current;
-                }
+        if (tv) {
+            const id = tv[1];
+            const s = tv[2];
+            const e = tv[3];
+            const data = load(`tv_${id}`);
+            if (data && data.season == s && data.episode == e && window.player) {
+                window.player.currentTime = data.time;
             }
         }
     });
+
 })();
