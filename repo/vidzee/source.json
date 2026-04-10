@@ -6,7 +6,7 @@
   "icon": "https://player.vidzee.wtf/favicon.ico",
 
   "search": {
-    "url": "https://api.themoviedb.org/3/search/multi?api_key=YOUR_TMDB_API_KEY&query={query}",
+    "url": "https://api.themoviedb.org/3/search/multi?api_key=55614aa54fbebbe6cc886fb0d4b64dd1&query={query}",
     "map": {
       "results": {
         "id": "id",
