@@ -1,9 +1,10 @@
 {
-  "name": "Entertainment ",
+  "name": "Movies and TV Shows",
   "version": 1,
   "extensions": [
     {
       "id": "vidzee",
+      "name": "VidZee Player",
       "url": "vidzee/source.json"
     }
   ]
